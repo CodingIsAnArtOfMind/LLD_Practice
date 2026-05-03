@@ -1,0 +1,130 @@
+So here is the requirement I had asked from person taking interview
+
+
+You: "How do players interact with the game? Do they just specify a column number and the disc drops?"
+Interviewer: "Yes, players choose a column from 0 to 6, and the disc falls to the lowest available spot."
+
+You: "What are all the ways a game can end? Is it just four in a row, or are there draws?"
+Interviewer: "Four in a row—vertical, horizontal, or diagonal—wins. If the board fills up with no winner, it's a draw."
+
+You: "What should happen if someone tries to drop a disc in a column that's already full? Should I return an error, throw an exception, or just ignore it?"
+Interviewer: "Return false or raise an error. Don't let invalid moves break the game state."
+
+You: "And what if a player tries to move out of turn?"
+Interviewer: "Same thing. Reject it clearly."
+
+You: "Are we designing this to support one game at a time, or do we need to handle multiple concurrent games?"
+Interviewer: "Just one game. Keep it simple."
+
+You: "Got it. And is this backend logic only, or do we need UI support as well?"
+Interviewer: "Backend only. Someone else will handle rendering."
+
+You: "Do we need to track move history or support undo?"
+Interviewer: "No, don't overcomplicate it."
+
+You: "What about board size—does it need to be configurable, or always 7x6?"
+Interviewer: "Always 7x6."
+
+final Requirements:
+1. Two players take turns dropping discs into a 7-column, 6-row board
+2. A disc falls to the lowest available row in the chosen column
+3. The game ends when:
+- A player gets four discs in a row (vertical, horizontal, or diagonal). They win.
+- The board is full. It's a draw.
+4. Invalid moves should be rejected clearly:
+- Dropping in a full column.
+- Moving out of turn.
+- Moving after the game is over.
+
+
+Taking out the Noun from the requirments
+
+1.Game
+2.Board
+3.Player
+
+core and Entities:
+1. Game: Represents the overall game state, including the board and players.
+2. Board: Represents the 7x6 grid where players drop their discs.
+3. Player: Represents each player, including their disc color and turn order.
+
+Entity	Responsibility
+Game	The orchestrator. Holds the Board, tracks which Player's turn it is, manages game state (in progress, won, draw), and enforces turn-based rules.
+        When a player makes a move, Game validates it, tells Board to place the disc, checks if that move won, and switches turns.
+Board	The 7x6 grid where discs live. Owns the grid state and handles disc placement.
+        Knows how to check if a column is full, where a disc should fall, and whether four discs are connected.
+        Doesn't care about whose turn it is or who's winning.
+Player	Represents a person in the game. Simple data holder with a name and disc color.
+        No game logic here.
+
+Requirement	What Game must track
+"Two players take turns dropping discs into a 7-column, 6-row board"-----> The two players, whose turn it is, and the board
+"The game ends when a player wins or the board is full"	--------> The game state (in progress, won, draw)
+"A player gets four discs in a row. They win."	------> Who won (if anyone)
+
+Next, look at the actions the outside world needs to perform. Every method on Game should correspond to a concrete need in the problem statement.
+Need from requirements	Method on Game
+"Players take turns dropping discs"	--> makeMove(player, column) - the core action
+"Reject moves out of turn"	---> getCurrentPlayer() - caller needs to know whose turn it is
+"The game ends when..."	---> getGameState() - caller needs to check if game is over
+"A player gets four discs in a row"	---> getWinner() - caller needs to know who won
+
+Entity:
+1.Game
+  Attributes:
+  -board: Board
+  - player1: Player
+  - player2: Player
+  - state: GameState (e.g., ongoing, player1_wins, player2_wins, draw)
+  - wining_player: Player (null if no winner yet)
+        game(player1,palyer2)
+        makeMove(player,column)-- boolean
+        getGameState()
+        getCurrentPlayer()
+        getWinner()
+
+Requirement	What Board must track
+"7-column, 6-row board"	-----> Fixed dimensions: number of rows and columns
+"A disc falls to the lowest available row in the chosen column"	-----> The current occupancy of each column (the grid)
+"The board is full. It's a draw."	-----> Whether there is at least one empty cell left
+"A player gets four discs in a row…"	----> Enough information in the grid to check contiguous discs for a given player
+
+
+2.Board
+  Attrinutes:
+  -row int=6
+  -column int=7
+  -grid DisColor[row][column]
+
+From the outside, Board needs to support a small set of actions:
+Need from requirements	Method on Board
+"Check that column has space before placing"	---> canPlace(column)
+"A disc falls to the lowest available row"	----> placeDisc(column, color) returns the row
+"The board is full. It's a draw."	---> isFull()
+"A player gets four discs in a row"	---> checkWin(row, column, color)
+UI or external code needs to render the grid	---> getCell(row, column)
+
+You can derive the state directly from the problem:
+Requirement	What Player must track
+"Two players take turns…"	--> A name or ID so the Game can compare players
+"their own discs"	--> The disc color associated with that player
+
+3.Player
+ Attributes:
+  -name String
+  - color String
+  + Player(name, color)
+  + getName() -> string
+  + getColor() -> DiscColor
+
+enum GameState:
+IN_PROGRESS
+WON
+DRAW
+
+enum DiscColor:
+RED
+YELLOW
+
+
+
