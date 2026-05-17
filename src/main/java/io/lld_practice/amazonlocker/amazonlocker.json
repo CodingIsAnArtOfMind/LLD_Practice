@@ -1,0 +1,85 @@
+Amazon Locker System JSON Example:
+"Design a locker system like Amazon Locker where delivery drivers can deposit packages and customers can pick them up using a code."
+
+How to ask question.
+1. Primary capablities
+2. Error Handling
+3. scope handling
+
+Primary capablities:-
+        1.Is there going to be a different type of compartment
+        2. How customer get the code do we need to send sms/email or just return the mesage ?
+
+Error handling:-
+        1. can one customer have multiple package and can the multiple package have same access token ?
+        2.how long the access token valid ? Till how long the package stays
+
+Scope handling:-
+        1.Are we building full logistic operation or just this locker part when driver arrives and put the package.
+
+You: "I haven't used an Amazon locker, can you explain how it works?"
+Interviewer: "It's a self-serve pickup point. When you order, you can choose a locker location.
+"Once the package is deposited, you get a code to open the locker and grab your package."
+
+You: "Are there different sized compartments? Can a small package go into a large compartment if all the small ones are full?"
+Interviewer: "Yes, we have small, medium, and large compartments. For now, match the size exactly. If there's no compartment of the right size, reject the deposit."
+
+
+Requirements:
+1. Carrier deposits a package by specifying size (small, medium, large)
+- System assigns an available compartment of matching size
+- Opens compartment and returns access token, or error if no space
+2. Upon successful deposit, an access token is generated and returned
+- One access token per package
+3. User retrieves package by entering access token
+- System validates code and opens compartment
+- Throws specific error if code is invalid or expired
+4. Access tokens expire after 7 days
+- Expired codes are rejected if used for pickup
+- Package remains in compartment until staff removes it
+5. Staff can open all expired compartments to manually handle packages
+- System opens all compartments with expired tokens
+- Staff physically removes packages and returns them to sender
+6. Invalid access tokens are rejected with clear error messages
+- Wrong code, already used, or expired - user gets specific feedback
+
+Out of scope:
+- How the package gets to the locker (delivery logistics)
+- How the access token reaches the customer (SMS/email notification)
+- Lockout after failed access token attempts
+- UI/rendering layer
+- Multiple locker stations
+- Payment or pricing
+
+Entities:-
+Check for all nouns
+1.Package(but we are handling only size so it will go on enum)
+2.Locker
+3.Compartment
+4. Access token
+
+class Locker:
+        compartment - Compartments[]
+        acessTokenMap- Map<String, AccessToken>
+
+        placePackage(size)- string|error
+        openCompartment(string)- void | error
+        openExpiredCompartment() - void
+
+class AcessToken:
+        token - String
+        expiration - LocalDate
+        compartment- Compartment
+
+        getToken()- token
+        getExpiry()- return true if token is expired boolean
+        getComparment()- the coresponding comparment
+
+class compartment
+        compartmentSize - enum
+        isAvailbe- boolean
+
+        getIsAvailbe()- boolean
+        markOcupied() - void
+        markFree() - void
+        getSize()- return enum size
