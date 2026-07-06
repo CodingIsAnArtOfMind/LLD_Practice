@@ -1,0 +1,41 @@
+Design an elevator control system for a building.
+The system should handle multiple elevators, floor requests, and move elevators efficiently to service requests.
+
+1.Primary Capabilities:
+2.Error Handling:
+3.Scope Boundries:
+
+1. Primary Capabilities:
+   - How many elevators and floors in the building ? fixed or configurable?
+   - Are halls calls (up/down buttons) or do they choose a specific floor from outside the elevator?
+   - can we select multiple floors at once from inside the elevator ?
+   - Problem say that the elevator should move efficiently to service requests. How do we define efficiency? Is it based on minimizing wait time, travel time, or energy consumption?
+
+2. Error Handling:
+1. What about invalid floor requests (e.g., requesting a floor that doesn't exist)?
+2. what happen if someone request the floor they already are on?
+
+3. Scope Boundaries:
+    - capacity , weight limits, door open/close mechanics, emergency stop functionality, dynamic floor/elevator configuration, and UI/rendering layer are out of scope.
+    - similation runs in discrete time steps (e.g., a `step()` or `tick()` call advances time) or tual hardware control system.
+
+
+Requirements:
+1. System manages 3 elevators serving 10 floors (0-9)
+2. Users can request an elevator from any floor (hall call). System decides which elevator to dispatch.
+3. Once inside, users can select one or more destination floors
+4. Simulation runs in discrete time steps (e.g., a `step()` or `tick()` call advances time)
+5. Elevator stops come in two types:
+    - Hall calls: Request from a floor with direction (UP or DOWN)
+    - Destination: Request from inside elevator (no direction specified)
+6. System handles multiple concurrent pickup requests across floors
+7. Invalid requests should be rejected (return false)
+    - Non-existent floor numbers
+8. Requests for the current floor are treated as a no-op / already served (doors out of scope)
+
+Out of scope:
+- Weight capacity and passenger limits
+- Door open/close mechanics
+- Emergency stop functionality
+- Dynamic floor/elevator configuration
+- UI/rendering layer
